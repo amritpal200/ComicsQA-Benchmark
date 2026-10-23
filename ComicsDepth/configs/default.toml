@@ -1,0 +1,86 @@
+# ComicsDepth configuration. Override any value with: --set section.key=value
+# Path values may reference other [paths] keys as {name}.
+
+[paths]
+storage = "/data/151-3/comics"
+root = "{storage}/ComicsDepth"                       # all large outputs
+dataset = "{storage}/mangas_webdatasets/combined_mangasDatasets"
+splits = "{storage}/mangas_webdatasets/splits_balanced.json"
+coco_images = "/data/130-1/shared/coco/val2017"       # read-only natural images
+midas_weights = "{storage}/models/MiDaS/midas_v21_384.pt"
+depth_anything_model = "depth-anything/Depth-Anything-V2-Large-hf"
+
+[manga]
+name = "manga_v1"                    # -> {root}/data/manga_v1
+exclude_prefixes = ["popmanga_dev", "popmanga_extended"]   # keep the QA benchmark source out
+train_panels = 10000
+val_panels = 300
+pages_per_tar = 40
+panels_per_page = 2
+val_pages_per_tar = 10
+val_panels_per_page = 1
+min_panel_side = 192                 # pixels, in the original page
+text_margin_ratio = 0.5              # text boxes grown by this fraction of their short side ...
+                                     # (0.5 covers most balloons on real pages; 0.25 left outlines)
+text_margin_min_px = 6               # ... and at least this many pixels (approximates balloons)
+include_tails = true                 # MAGI-3 balloon tails are added to the text mask
+textfree_size = 384                  # panels resized so both sides >= this before searching
+textfree_min_side = 96               # smallest accepted text-free square
+seed = 1234
+num_workers = 16
+
+[coco]
+name = "coco_val2017_midas_v21"      # -> {root}/data/<name>
+size = 384                           # MiDaS v2.1 inference size (upper bound, multiple of 32)
+
+[train]
+run = "v1"                           # -> {root}/runs/<run>/<stage>
+crop = 384
+seed = 1234
+num_workers = 8
+allow_tf32 = true
+amp = "bf16"                         # "bf16" mixed precision on CUDA, or "none" (fp32/TF32)
+channels_last = true                 # NHWC memory layout (faster convolutions with bf16)
+vis_samples = 4
+
+# Stage 1: CycleGAN natural <-> manga without text (upstream cyclegan_natural_comics_without_text).
+# Upstream used torch.optim.Adam defaults (lr 1e-3, betas 0.9/0.999) and 100 epochs.
+[without_text]
+epochs = 100
+batch_size = 4
+lr = 1e-3
+betas = [0.9, 0.999]
+lambda_cycle = 10.0
+lambda_identity = 5.0
+residual_blocks = 8
+keep_every = 10
+
+# Stage 2: put real text regions into translated images (upstream cyclegan_natural_comics_add_text).
+[add_text]
+epochs = 100
+batch_size = 16
+lr = 1e-3
+betas = [0.9, 0.999]
+lambda_text = 3.0
+lambda_notext = 3.0
+lambda_identity = 5.0
+residual_blocks = 8
+keep_every = 10
+
+# Stage 3: fine-tune MiDaS v2.1, ignoring text (upstream depth_add_text_ignoretext, lr 1e-6).
+[depth]
+epochs = 100
+batch_size = 16
+lr = 1e-6
+betas = [0.9, 0.999]
+keep_every = 20
+
+[predict]
+size = 384
+
+[evaluate]
+models = ["midas", "comicsdepth"]    # add "depth_anything_v2" after the baseline download
+panels = 48
+panels_per_grid = 8
+pair_samples = 2000
+seed = 1234

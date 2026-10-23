@@ -1,0 +1,6 @@
+# For hosts whose NVIDIA driver only supports CUDA 12 (e.g. cudahpc25, driver 555).
+# Same versions as the Evaluation project's working cudahpc25-py311 environment.
+torch==2.9.0
+torchvision==0.24.0
+numpy==2.4.6
+pillow==12.3.0

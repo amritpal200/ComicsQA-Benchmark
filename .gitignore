@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Environments (live under /data/151-3/comics/.cache)
+.venv/
+venv*/
+env/
+
+# Data, models and outputs (live under /data/151-3/comics)
+data/
+outputs/
+runs/
+logs/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.npy
+*.npz
+*.tar
+*.tar.idx
+*.zip
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

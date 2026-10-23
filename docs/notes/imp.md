@@ -1,0 +1,1 @@
+One of the main things, when doing questions, where we are using names of charcters from ground truth, and name appear in question or answer, we have to make sure that name appear somewhere in chapter, so model can answer it, other wise it does not make any sense to have that question.
