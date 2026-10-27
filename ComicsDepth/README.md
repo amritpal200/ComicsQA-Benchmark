@@ -102,6 +102,24 @@ Monitor training: `tail -f <run dir>/metrics.jsonl`, and look at `<run dir>/samp
 - CycleGAN 2 grid rows: photo, translated, real manga, mask, translated + text.
 - Depth grid rows: training input, target, prediction, mask.
 
+## Visual preview
+
+Inspect 10 randomly selected held-out panels with the trained 512-pixel model:
+
+```bash
+bash scripts/run.sh preview --gpu 0 --config configs/fast512.toml \
+  --count 10 --seed 42 \
+  --output /data/151-3/comics/ComicsDepth/previews/random10_seed42
+```
+
+Open `index.html`, or view `overview_01.png` and `overview_02.png` in the output folder.
+Originals appear on the left, depth on the right: **brighter = closer**. Values are relative
+within each image, not metric distances. Individual original/depth/comparison PNGs, float32
+depth arrays, and source/model provenance are saved too. Existing output folders are refused.
+Change `--seed` and the output folder for a different sample. Add `--images /path/to/images`
+to sample your own folder instead. The model was trained on panels; whole-page predictions
+mix independent scenes. Use an available GPU instead of `0`, or `--device cpu` without a GPU.
+
 ## Evaluation
 `evaluate` samples `evaluate.panels` val panels and writes:
 - `grid_*.png`: side-by-side panel | text mask | each model;

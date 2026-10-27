@@ -4,7 +4,7 @@
 #   --gpu N        one GPU
 #   --gpus 2,3,4,5 data-parallel training on several GPUs (train-* commands only; torchrun)
 # Commands: verify-weights, prepare-coco, prepare-manga, train-without-text,
-#           train-add-text, train-depth, predict, evaluate, test
+#           train-add-text, train-depth, predict, preview, evaluate, test
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 

@@ -15,6 +15,22 @@ Create candidate relationship sets; distinguish actual speech attribution from p
 ## Generation
 Use task-specific Qwen3-VL-32B-Thinking prompt and evidence pack. Prefer canonical character ID/name answers or concise fact phrases. Require uniqueness and alternative-entity checks.
 
+## Answers must not be easy to guess (decided 2026-10-23)
+Character-name answers are welcome. What we avoid is answers a model can get right without reading the pages:
+- **Frequency guess:** main characters appear on dozens of pages (Naruto on 66, Denji on 72), so
+  "who…?" is often right if the model just says the main character. Among questions whose answer is a
+  character name, at most **~30%** (configurable) may have one of the chapter's most frequent
+  characters as the answer (top-2 by page count). The rest should have characters the frequency guess
+  gets wrong, with other plausible characters present in the same pages.
+- **Small answer space:** yes/no, left/right, before/after, this/that are right by chance 50% of the
+  time. Avoid them, and keep at most a small configurable share (~5%) where they are unavoidable.
+  Prefer open answers with many possibilities: a character name, a page or panel reference, a count,
+  an object or action, or a list (e.g. "which pages…", "who is standing left of X?" instead of
+  "is A left of B?").
+- **Measure it:** for every question store its chance level (1 / size of the answer space).
+  Per chapter and task, report baselines: random guess, always-the-most-frequent-character, and text
+  only. Rebalance generation if they score well.
+
 ## Outputs
 `data/candidates/character/` and `data/candidates/dialogue/` shards, manifests, evidence pointers.
 

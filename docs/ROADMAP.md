@@ -19,7 +19,7 @@ Create a chapter-scoped, annotation-grounded, human-traceable manga VQA benchmar
 11. `docs/specs/09_validation_export.md` — scoring metadata, deduplication, review, export.
 
 ## Suggested execution order
-Foundation → annotation adapters → evidence builders → one QA module → MN5 serving → remaining QA modules → validation/export. Once shared evidence exists, individual QA modules are independent and can run concurrently. Depth-based QA is optional and must not block other tasks.
+Current execution order and ownership are tracked in `docs/STATUS.md`; read it before work and update it at every stage transition. The agreed graph sequence is CKG-0 review → CKG-1 → CKG-2 (name visibility) → CRL-1 → CRL-2 → GEN-1 → VERB-1 → CKG-3 → GEN-2 → EXP-1. Exact-name identity integration may be included in CKG-1. Name visibility must precede GEN-1, and guessability limits are enforced during GEN-1 and rechecked at export. Page-order generation is an independent side task. Depth is excluded (decision 2026-10-27).
 
 ## How to use with Codex
 Open this repository in Codex. Start with `docs/prompts/01_start.md`. For each subsequent stage, point Codex to the matching spec and ask for a plan before changes. Keep separate commits/PRs per stage. Do not ask Codex to implement all specs at once. See `docs/prompts/02_stage_template.md`.

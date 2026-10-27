@@ -3,6 +3,7 @@
 Read `docs/ROADMAP.md`, `docs/specs/00_architecture.md`, and the specific stage specification before editing code.
 
 ## Working agreement
+- Read `docs/STATUS.md` at the start of every task. It is the shared coordination file for both agents. Re-read it immediately before a targeted edit; record stage start/completion/blockers, output paths, tests and dated decisions. Preserve the other agent's entries and do not mark unexecuted work done.
 - Work on **only the requested stage**. First inspect the existing repository and actual data; report assumptions, missing fields, design and planned files. **Wait for explicit approval before changing code** unless the user explicitly authorizes implementation.
 - Do not invent PopManga/MAGI-3/Qwen/depth annotation fields, model capabilities, paths, GPUs, or successful validation results. Build adapters around inspected schemas.
 - Never overwrite source images or source annotations. Maintain immutable provenance and stable IDs. No large downloads, GPU jobs, paid API calls, or full dataset runs without approval.

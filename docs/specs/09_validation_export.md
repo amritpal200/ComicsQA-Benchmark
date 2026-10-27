@@ -9,6 +9,17 @@ Default to deterministic: canonical entity/alias, normalized exact text, numeric
 ## Immediate checks
 Schema and references, selected-context evidence, unique answer or explicitly defined multi-answer, graph query execution, duplicates/near duplicates, answer type/evaluation compatibility, provenance, source completeness, basic review queue. Avoid accepting inferred facts solely from model confidence. Human review for uncertain/causal/depth claims.
 
+**Guessability** (see spec 05):
+- Store each question's chance level (1 / answer-space size).
+- Keep yes/no and other two-option answers to a small configurable share (~5%).
+- Among character-name answers, at most ~30% may be the chapter's top-2 most frequent characters.
+- Report per chapter and task: the answer-type distribution and the accuracy of the random,
+  most-frequent-character and text-only baselines. Rebalance when they score well.
+
+**Name visibility** (`docs/notes/imp.md`): a character name used in a question or answer must be
+readable in the selected pages (OCR text with aliases; ambiguous name parts don't count). Otherwise
+describe the character by appearance, or reject the question.
+
 ## Deferred but supported in schema
 Independent VLM solving, image-free ablations, page removal ablations, multi-model difficulty calibration, LLM judge and human accuracy. Save necessary prompts, evidence IDs and evaluation rules to add later.
 

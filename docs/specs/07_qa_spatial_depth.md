@@ -12,6 +12,11 @@ Character/panel bboxes and spatial index; optional aligned depth maps. No requir
 ## Tasks
 Left/right/overlap/relative depth, changes in placement, which named speaker later appears behind whom, cross-page character retrieval plus within-panel spatial comparison.
 
+## Answer format (guessability)
+Left/right/closer/farther between two given characters is a 50% guess. Ask open questions instead:
+"which character is directly left of X?", "how many characters are behind X?", "who is closest to
+the viewer in panel 3?". Two-option spatial questions follow the ~5% cap in spec 09.
+
 ## Generation
 Task-specific prompt with verified relation and canonical answer; optional Qwen enrichment for selecting semantically meaningful spatial relations, not replacing computed checks.
 

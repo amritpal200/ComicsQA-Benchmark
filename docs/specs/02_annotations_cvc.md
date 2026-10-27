@@ -7,9 +7,34 @@ Foundation schemas; original images/human annotations. Annotation production occ
 1. Load original PopManga human annotations (identity/name/bbox/text links if present).
 2. MAGI-3 structural annotation: panels, characters, text and available associations.
 3. Qwen-32B-Instruct: panel captions, page summaries, supported action/event descriptions.
-4. Second MAGI-3 pass for prose captions/enrichment **only after confirming the actual implementation and required inputs**.
+4. **Second MAGI-3 pass: character grounding** (runs after stages 2 and 3). Details below.
 5. Depth estimation in parallel, if available, with recorded resize/crop transforms and depth convention. Depth model: our ComicsDepth fine-tune (`Code/ComicsDepth`), compared against MiDaS and Depth Anything V2.
 6. **OCR transcription (required; not in human ground truth).** Run a dedicated OCR model (trained only for OCR, not a general VLM) on crops of the **human PopManga text boxes**, one crop per box, original pixel coordinates kept. Details below.
+
+## Character grounding stage (stage 4)
+Source: "From Panels to Prose" (Sachdeva & Zisserman, arXiv:2503.23344), pipeline step 4; MAGI v3
+API `predict_character_grounding` (already checked present in the checkpoint by `run_magi3.py`).
+- **Why:** Qwen captions refer to characters only by appearance ("the boy with spiky hair", "he").
+  Grounding puts a box on every character-referring phrase, including pronouns. Matching these boxes
+  to the **human** PopManga character boxes (IoU + Hungarian matching, within the same panel) gives
+  each phrase a human cluster and **ground-truth name**. That makes the captions character-aware
+  without letting the VLM guess names (`docs/notes/imp.md`).
+- **Input:** each MAGI v3 panel crop plus its Qwen panel caption (prompt v4: no names, no quoted
+  dialogue, so no pronouns inside quotes reach the grounder). Page summaries are not grounded,
+  because grounding works per panel.
+- **Output:** `annotations/magi3_grounding/<page>.json`. For each panel: caption, phrases with
+  character-span offsets and predicted boxes (page coordinates), then matches to MAGI v3 character
+  boxes and to human character boxes, with IoU, the matched human cluster and name, and status
+  (`matched` / `ambiguous` / `unmatched`). The raw model output is kept.
+- **Reliability:** grounding is model-inferred. The paper reports F1 0.69–0.74 on PopCaptions,
+  dropping in crowded panels. Keep IoU and margin thresholds configurable, never treat a link as
+  human ground truth, and send uncertain links to review before they are used in questions.
+- **Constraints:** the decoder has a 1024-token limit (caption plus interleaved box tokens). Panel
+  captions are capped at 150 words, which fits, but flag truncation the same way as for MAGI v3.
+- **Optional later step (paper step 5):** page prose from grounded panel captions plus the OCR
+  transcript in reading order. The paper (Fig. 11–12) shows that direct whole-page VLM descriptions
+  misorder panels and confuse characters, so for evidence prefer per-panel facts over the Qwen page
+  summary.
 
 ## OCR stage (stage 6)
 - **Why:** dialogue/speaker questions, quoting text in answers, and the name-visibility rule (see `imp.md`: a character name used in a question/answer must be readable in the selected pages) all need the actual text. Human PopManga annotations have text boxes but no transcriptions.
@@ -25,10 +50,10 @@ Foundation schemas; original images/human annotations. Annotation production occ
 - Preserve human and model annotations separately; do not silently reconcile conflicting facts.
 - Align bounding boxes and masks with original page/panel coordinate systems. Validate panel and page associations.
 - Mark depth unavailable/low-confidence where appropriate; depth processing must not block non-depth tasks.
-- Distinguish structured MAGI-3 outputs from prose enrichment and verify whether the latter is supported.
+- Keep structural MAGI-3 outputs (stage 2) separate from grounding outputs (stage 4); grounding depends on a specific caption version (record the Qwen prompt version and caption hashes).
 
 ## Outputs
-`data/annotations/{human,magi3,qwen,magi3_prose,depth,ocr}/`, stage manifests, normalization-ready source refs.
+`data/annotations/{human,magi3,qwen,magi3_grounding,depth,ocr}/`, stage manifests, normalization-ready source refs.
 
 ## Acceptance checks
 Existing artifacts ingest without inference; missing stages skip gracefully; transformations invertible/documented; no source data overwritten; stage dependencies explicit.

@@ -11,6 +11,7 @@ COMMANDS = {
     "train-add-text": "comics_depth.train_add_text",
     "train-depth": "comics_depth.train_depth",
     "predict": "comics_depth.predict",
+    "preview": "comics_depth.preview",
     "evaluate": "comics_depth.evaluate",
 }
 

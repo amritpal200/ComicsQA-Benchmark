@@ -11,7 +11,7 @@ PopManga images + human annotations (read-only)
    ├─ annotations/human        human boxes, names, speaker/tail links          (spec 02)
    ├─ annotations/magi3        panels, characters, text, reading order          (model)
    ├─ annotations/qwen         panel captions, page summaries                    (model)
-   ├─ annotations/magi3_prose  prose enrichment (only once verified)            (model)
+   ├─ annotations/magi3_grounding  caption phrases → character boxes → human names (model)
    ├─ annotations/ocr          OCR of human text boxes, OCR-only model           (model)
    └─ annotations/depth   <──  ComicsDepth/  manga depth model (trained here)   (model)
    │
@@ -45,8 +45,12 @@ PopManga images + human annotations (read-only)
 Large data, model weights, environments and outputs live outside the repository, under
 `/data/151-3/comics/` (for example `/data/151-3/comics/ComicsDepth/`); see `.gitignore`.
 
-## Status
+## Status (details in docs/STATUS.md)
 | Part | State |
 |---|---|
 | ComicsDepth | Implemented and tested; full training running |
-| Everything under `src/comics_qa/` | Planned (folders only) |
+| annotations/magi3 | Implemented; all 2,022 PopManga pages annotated |
+| annotations/qwen | Implemented (prompt v4); full run in progress |
+| annotations/human, core | Done (human export, core v1) |
+| annotations/ocr, magi3_grounding | Implemented; OCR running, grounding after Qwen |
+| Other folders under `src/comics_qa/` | Planned (folders only) |

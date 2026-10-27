@@ -1,5 +1,9 @@
 # 00 — Architecture and contracts
 
+Current scope (2026-10-27): depth is excluded; depth references in the original DAG
+and source table below describe historical architecture only. Follow `docs/STATUS.md`
+for the active CKG/CRL stage order, review inputs and coordination between agents.
+
 ## Goal
 Implement a modular pipeline for chapter-scoped, evidence-grounded manga QA from the full supplied PopManga collection. QAs may answer with a name, phrase, sentence, number, date, boolean or list; favor deterministic evaluation, with a small configurable LLM-judge subset.
 
@@ -7,7 +11,7 @@ Implement a modular pipeline for chapter-scoped, evidence-grounded manga QA from
 ```
 Human PopManga annotations + images
         │
-        ├── MAGI-3 structural annotations ──> Qwen-32B-Instruct captions/summaries ──> second MAGI-3 prose enrichment (verify actual tool capabilities)
+        ├── MAGI-3 structural annotations ──> Qwen3-VL-32B panel captions/page summaries ──> MAGI-3 character grounding (caption phrase → box → human identity/name)
         ├── OCR on human text boxes (dedicated OCR model; required, model-inferred)
         └── Depth estimation (independent / optional; ComicsDepth fine-tune)
                         │
@@ -29,6 +33,28 @@ Human PopManga annotations + images
                         ▼
             candidates → checks → human review → export
 ```
+
+## Source precedence (decided 2026-10-23)
+Use **human ground truth wherever it exists**; use model annotations only for what the ground truth
+lacks. Every fact records its source (`human`, `derived`, `model:<name>`).
+
+| Field | Source |
+|---|---|
+| character boxes, names (`"none"` = unnamed), page-local clusters | human (PopManga) |
+| text boxes, tails, text→speaker and text→tail links, text class | human |
+| chapter-level character identity | derived from human names + aliases (no human chapter IDs exist) |
+| panel boxes | MAGI v3 (the PopManga export's panels are model proxies, not human) |
+| panel / text reading order | MAGI v3 geometry |
+| text content | OCR model run on the human text boxes |
+| panel captions, page summaries | Qwen3-VL-32B (context, never sole answer evidence) |
+| caption phrase → character | MAGI v3 grounding, matched to human character boxes (name from human) |
+| depth | ComicsDepth |
+
+- Answers come from human facts or deterministic computation on them (counts, geometry, names).
+- Model facts serve as bridges or context. Questions whose answer depends on a model fact (OCR text,
+  caption claim, depth, grounding link) need a confidence check or human review.
+- MAGI v3 character/text/association predictions are used only on pages **without** ground truth
+  (97 of 2,022 images). Those pages may give story context but don't produce questions.
 
 ## Separation
 - **CVC:** existing annotation production and normalization/precomputation as appropriate; no dependency on MN5 for annotation generation.
