@@ -1,0 +1,16 @@
+{
+  "version": "benchmark1000.pool_sources.1",
+  "sources": [
+    "items/gen1/v1",
+    "items/gen2/v1",
+    "items/gen2/v2",
+    "items/gen2/v3",
+    "reports/benchmark1000/admission_v1",
+    "reports/benchmark1000/families_v1_admission",
+    "reports/benchmark1000/coverage_v1_admission",
+    "reports/benchmark1000/coverage_v1_sets_admission",
+    "reports/benchmark1000/switch_v1_admission",
+    "reports/benchmark1000/branch_v1_admission",
+    "reports/benchmark1000/contrast_v1"
+  ]
+}

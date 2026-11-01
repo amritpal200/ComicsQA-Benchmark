@@ -1,0 +1,171 @@
+[
+  {
+    "chapter_id": "blue-exorcist__c002",
+    "identity_id": "blue-exorcist__mephisto-pheles",
+    "canonical_name": "Mephisto Pheles",
+    "form": "Mephisto",
+    "graph_sha256": "d2e018ab4be9f3704d3e4e0dfedd2694aa80da215b8fed8d5a1f2fd2fdb0e3cb",
+    "visibility_sha256": "1d4d454941c66de81d185730a67b06e203961a7d21c24657c11e502977fe36b1",
+    "decision": "approved",
+    "name_use": "character_name",
+    "reviewer": "codex_ai_visual_review",
+    "note": "AI visually inspected p002: dialogue explicitly says the person was thought to be named MEPHISTO. Registered given-name form of human-labelled Mephisto Pheles; valid name use, not an ordinary word fragment.",
+    "evidence_ids": [
+      "namevis:445f7d228bc8c21b453b927a051af3f7e53acb00ab8714dbef258ff929b210c1"
+    ],
+    "evidence_context": [
+      {
+        "evidence_id": "namevis:445f7d228bc8c21b453b927a051af3f7e53acb00ab8714dbef258ff929b210c1",
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "HUH? I THOUGHT YOUR NAME WAS MEPHISTO.",
+        "magi_text": "Huh? I thought your name was mephisto."
+      }
+    ],
+    "review_kind": "ai_visual",
+    "human_review": "pending",
+    "review_date": "2026-10-29",
+    "reviewed_pages": [
+      {
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "image_sha256": "97a542d1a414bd1a3777dfe4b6819c67138680f0090a92a5cd1bff6570e65263"
+      }
+    ],
+    "review_scope": "Alias eligibility only; does not certify every mention or final benchmark item"
+  },
+  {
+    "chapter_id": "blue-exorcist__c002",
+    "identity_id": "blue-exorcist__rin-okumura",
+    "canonical_name": "Rin Okumura",
+    "form": "Rin",
+    "graph_sha256": "d2e018ab4be9f3704d3e4e0dfedd2694aa80da215b8fed8d5a1f2fd2fdb0e3cb",
+    "visibility_sha256": "1d4d454941c66de81d185730a67b06e203961a7d21c24657c11e502977fe36b1",
+    "decision": "approved",
+    "name_use": "character_name",
+    "reviewer": "codex_ai_visual_review",
+    "note": "AI visually inspected p002: a character entrusts RIN to Mr Faust, and another refers to Rin going to the same school. Readable personal-name use; registered given-name form of human-labelled Rin Okumura.",
+    "evidence_ids": [
+      "namevis:12db00cc7716e32cea5826aa9dd8e9c4e7ba8f0bc0d77f1d549c041300217af8"
+    ],
+    "evidence_context": [
+      {
+        "evidence_id": "namevis:12db00cc7716e32cea5826aa9dd8e9c4e7ba8f0bc0d77f1d549c041300217af8",
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "I'm LEAVING RIN IN YOUR HANDS, MR. FALST.",
+        "magi_text": "I'm leaving Rin in your hands, Mr. FAUST."
+      }
+    ],
+    "review_kind": "ai_visual",
+    "human_review": "pending",
+    "review_date": "2026-10-29",
+    "reviewed_pages": [
+      {
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "image_sha256": "97a542d1a414bd1a3777dfe4b6819c67138680f0090a92a5cd1bff6570e65263"
+      }
+    ],
+    "review_scope": "Alias eligibility only; does not certify every mention or final benchmark item"
+  },
+  {
+    "chapter_id": "blue-exorcist__c002",
+    "identity_id": "blue-exorcist__shiro-fujimoto",
+    "canonical_name": "Shiro Fujimoto",
+    "form": "Fujimoto",
+    "graph_sha256": "d2e018ab4be9f3704d3e4e0dfedd2694aa80da215b8fed8d5a1f2fd2fdb0e3cb",
+    "visibility_sha256": "1d4d454941c66de81d185730a67b06e203961a7d21c24657c11e502977fe36b1",
+    "decision": "approved",
+    "name_use": "character_name",
+    "reviewer": "codex_ai_visual_review",
+    "note": "AI visually inspected p002: dialogue refers to FATHER FUJIMOTO having planned everything. Readable surname used to identify a person; registered surname form of human-labelled Shiro Fujimoto.",
+    "evidence_ids": [
+      "namevis:7aa5d7a6f50d632bf5b2e50b9a07d897976cfddfbb479810b8512345cc892c98"
+    ],
+    "evidence_context": [
+      {
+        "evidence_id": "namevis:7aa5d7a6f50d632bf5b2e50b9a07d897976cfddfbb479810b8512345cc892c98",
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "BUT\nFATHER\nFUJIMOTO\nPLANNED FOR\nEVERYTHING.",
+        "magi_text": "But father Fujimoto planned for everything."
+      }
+    ],
+    "review_kind": "ai_visual",
+    "human_review": "pending",
+    "review_date": "2026-10-29",
+    "reviewed_pages": [
+      {
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "image_sha256": "97a542d1a414bd1a3777dfe4b6819c67138680f0090a92a5cd1bff6570e65263"
+      }
+    ],
+    "review_scope": "Alias eligibility only; does not certify every mention or final benchmark item"
+  },
+  {
+    "chapter_id": "blue-exorcist__c002",
+    "identity_id": "blue-exorcist__yukio-okumura",
+    "canonical_name": "Yukio Okumura",
+    "form": "Yukio",
+    "graph_sha256": "d2e018ab4be9f3704d3e4e0dfedd2694aa80da215b8fed8d5a1f2fd2fdb0e3cb",
+    "visibility_sha256": "1d4d454941c66de81d185730a67b06e203961a7d21c24657c11e502977fe36b1",
+    "decision": "approved",
+    "name_use": "character_name",
+    "reviewer": "codex_ai_visual_review",
+    "note": "AI visually inspected p002 and p020: YUKIO is addressed by name; on p020 the depicted character introduces himself as YUKIO OKUMURA and confirms YUKIO. Full-name identification and readable given-name use support the registered alias.",
+    "evidence_ids": [
+      "namevis:a48e0791b3530fadddac7800fa58c0ffcdcaf9482b69f3ead52c1d79ccbe9432",
+      "namevis:7178a1eaa5fad8d92e2ba16acd2d7dbbbd30fa70dc232a344527ac8a60954da6",
+      "namevis:67d2519713436c6806a7a7f105bcb74ca968078d2854ba248e46d46dc0c74190",
+      "namevis:bd5ebda35da4f5ec3eb3f6a79321a319be4ee23486d1b3c368dbfff6e6634b2c"
+    ],
+    "evidence_context": [
+      {
+        "evidence_id": "namevis:a48e0791b3530fadddac7800fa58c0ffcdcaf9482b69f3ead52c1d79ccbe9432",
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "YUKIO?!",
+        "magi_text": "Yukio?!"
+      },
+      {
+        "evidence_id": "namevis:7178a1eaa5fad8d92e2ba16acd2d7dbbbd30fa70dc232a344527ac8a60954da6",
+        "page_id": "blue-exorcist__c002__p020",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p020 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "I'M YUKIO OKUMLURA. I'LL BE YOUR ANTI-DEMON PHARMACEUTICALS INSTRUCTOR.",
+        "magi_text": "I'm Yukio Okumura. I'll be your anti-demon pharmaceuticals instructor."
+      },
+      {
+        "evidence_id": "namevis:67d2519713436c6806a7a7f105bcb74ca968078d2854ba248e46d46dc0c74190",
+        "page_id": "blue-exorcist__c002__p020",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p020 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "YUKIO\n????",
+        "magi_text": "Yukio???"
+      },
+      {
+        "evidence_id": "namevis:bd5ebda35da4f5ec3eb3f6a79321a319be4ee23486d1b3c368dbfff6e6634b2c",
+        "page_id": "blue-exorcist__c002__p020",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p020 - Chapter 2 Big Brother Little Brother.jpg",
+        "paddle_text": "YES.\nYUKIO.",
+        "magi_text": "Yes. Yukio."
+      }
+    ],
+    "review_kind": "ai_visual",
+    "human_review": "pending",
+    "review_date": "2026-10-29",
+    "reviewed_pages": [
+      {
+        "page_id": "blue-exorcist__c002__p002",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p002 - Chapter 2 Big Brother Little Brother.jpg",
+        "image_sha256": "97a542d1a414bd1a3777dfe4b6819c67138680f0090a92a5cd1bff6570e65263"
+      },
+      {
+        "page_id": "blue-exorcist__c002__p020",
+        "relative_image_path": "Blue Exorcist/Blue Exorcist - 002 - Chapter 2 Big Brother Little Brother/Blue Exorcist - 002 - p020 - Chapter 2 Big Brother Little Brother.jpg",
+        "image_sha256": "61ffc33b4d89dce598af2c183d82e3f181e8d0c6264d6909ca7cd3c8a4791812"
+      }
+    ],
+    "review_scope": "Alias eligibility only; does not certify every mention or final benchmark item"
+  }
+]

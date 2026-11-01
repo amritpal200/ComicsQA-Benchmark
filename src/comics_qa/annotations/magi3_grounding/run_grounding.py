@@ -42,6 +42,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
+from guards import install_decoder_guard, validate_prediction, reusable, VERSION as GUARD_VERSION
 sys.path.insert(0, str(HERE.parent / 'magi3'))
 import matching  # noqa: E402
 from run_magi3 import (atomic_write_json, check_cuda_kernels, check_model,  # noqa: E402
@@ -280,8 +281,9 @@ class Grounder:
         self.model = AutoModelForCausalLM.from_pretrained(
             args.model, trust_remote_code=True, local_files_only=True,
             torch_dtype=getattr(torch, dtype), attn_implementation='eager').to(device).eval()
+        install_decoder_guard(self.model, self.processor)
         self.strict = args.strict
-        self.metadata = {'model_path': str(args.model), 'model_code_sha256': hashes,
+        self.metadata = {'guard_version': GUARD_VERSION, 'model_path': str(args.model), 'model_code_sha256': hashes,
                          'torch': torch.__version__, 'transformers': transformers.__version__,
                          'device': device, 'dtype': dtype}
 
@@ -293,7 +295,17 @@ class Grounder:
 def ground_batch(engine, crops, captions):
     """Run a batch; on non-fatal failure split it. Returns a list of outputs or exceptions."""
     try:
-        return engine.ground(crops, captions)
+        outputs = engine.ground(crops, captions)
+        if len(outputs) != len(captions):
+            raise ValueError('Model returned the wrong number of grounding outputs')
+        checked = []
+        for output, caption in zip(outputs, captions):
+            try:
+                output['validation'] = validate_prediction(output, caption, engine.strict)
+                checked.append(output)
+            except (ValueError, TypeError, KeyError) as exc:
+                checked.append(exc)
+        return checked
     except Exception as exc:
         if fatal_cuda_error(exc):
             raise RuntimeError(f'Fatal CUDA error; stopping: {exc}') from exc
@@ -314,10 +326,20 @@ def process_page(relative, engine, args, counts):
     target = output_path(args.out, relative)
     sig = signature(qwen, args)
     if target.exists() and not args.overwrite:
-        old = read_json(target)['grounding']['_meta']
-        if old.get('status') == 'complete' and old.get('signature') == sig:
+        old = read_json(target)
+        if reusable(old, sig, args.strict):
             counts['skipped_existing'] += 1
             return
+    if args.reuse_from and not args.overwrite:
+        previous = output_path(args.reuse_from, relative)
+        if previous.exists():
+            old = read_json(previous)
+            if reusable(old, sig, args.strict):
+                old['grounding']['_meta']['revalidated_by'] = GUARD_VERSION
+                old['grounding']['_meta']['reused_from'] = str(previous)
+                atomic_write_json(target, old)
+                counts['reused_validated'] += 1
+                return
     panels = qwen['qwen32B']['panels']
     todo = [p for p in panels if isinstance(p.get('caption'), str) and p['caption'].strip()]
     with Image.open(args.images / relative) as source:
@@ -350,7 +372,7 @@ def process_page(relative, engine, args, counts):
                 phrases = phrases_from_output(out, panel['crop_bbox'])
                 map_spans_to_caption(phrases, out['grounded_caption'], panel['caption'])
                 entities = link_panel(panel, phrases, magi_chars, human, args)
-                entry.update(status='complete', caption_exact=out['grounded_caption'] == panel['caption'],
+                entry.update(status='complete', validation=out['validation'], caption_exact=out['grounded_caption'] == panel['caption'],
                              grounded_caption=out['grounded_caption'],
                              named_caption=named_caption(panel['caption'], phrases, entities),
                              phrases=phrases, entities=entities)
@@ -395,6 +417,7 @@ def parse_args(argv=None):
     p.add_argument('--match', help='only pages whose relative path contains this text')
     p.add_argument('--shard', default='0/1')
     p.add_argument('--overwrite', action='store_true')
+    p.add_argument('--reuse-from', type=Path, help='Read-only previous output; copy only validated complete pages')
     args = p.parse_args(argv)
     k, n = (int(v) for v in args.shard.split('/'))
     if not 0 <= k < n:
@@ -405,6 +428,10 @@ def parse_args(argv=None):
     for name in ('images', 'magi3', 'qwen', 'human'):
         if args.out == getattr(args, name) or getattr(args, name) in args.out.parents:
             p.error(f'--out must be outside --{name} (inputs are read-only)')
+    if args.reuse_from:
+        args.reuse_from = args.reuse_from.expanduser().resolve()
+        if args.out == args.reuse_from or args.out in args.reuse_from.parents or args.reuse_from in args.out.parents:
+            p.error('--reuse-from must be separate from --out')
     return args
 
 
@@ -440,8 +467,8 @@ def main(argv=None):
                 log(f'ERROR {relative}: {type(exc).__name__}: {exc}')
             rate = n / max(time.monotonic() - start, 1e-6) * 60
             log(f'[{n}/{len(pages)}] {relative.name}: {rate:.1f} pages/min {dict(counts)}')
-        status = ('limited' if args.limit or args.match else
-                  'completed_with_errors' if counts['pages_failed'] or counts['pages_partial'] else 'complete')
+        status = ('completed_with_errors' if counts['pages_failed'] or counts['pages_partial'] else
+                  'limited' if args.limit or args.match else 'complete')
         return 1 if counts['pages_failed'] or counts['pages_partial'] else 0
     except KeyboardInterrupt:
         status = 'interrupted'

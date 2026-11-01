@@ -1,0 +1,15 @@
+{
+  "max_candidates_per_chapter": 180,
+  "max_items_per_chapter": 60,
+  "max_per_family": 20,
+  "seed": 42,
+  "quality": {
+    "name_forms": "visible_canonical_only",
+    "max_count_share": 0.7,
+    "max_count_value_share": 0.35,
+    "max_page_offset_share": 0.5
+  },
+  "collection": {
+    "max_name_answer_share": 0.5
+  }
+}

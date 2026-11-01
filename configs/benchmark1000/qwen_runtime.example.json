@@ -1,0 +1,14 @@
+{
+  "schema": "comics_qa.benchmark1000.qwen_runtime.1",
+  "model_path": null,
+  "served_model": null,
+  "endpoint": null,
+  "max_context_tokens": null,
+  "max_new_tokens": 4096,
+  "max_images": 16,
+  "max_image_pixels": 1572864,
+  "max_request_bytes": 33554432,
+  "timeout_seconds": 60,
+  "max_attempts": 2,
+  "chat_template_kwargs": {}
+}

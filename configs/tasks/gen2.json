@@ -1,0 +1,6 @@
+{
+  "max_candidates_per_chapter": 180,
+  "max_items_per_chapter": 60,
+  "max_per_family": 20,
+  "seed": 42
+}

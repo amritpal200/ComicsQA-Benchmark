@@ -4,7 +4,7 @@
 Candidate QA shards from any tasks. Can run incrementally; final merge after completed jobs.
 
 ## Grading policy
-Default to deterministic: canonical entity/alias, normalized exact text, numeric with explicit tolerance/units, ISO date, boolean, category, ordered/unordered list. Allow short phrases/sentences with accepted paraphrases or fact-specific rules. A **small configurable minority** may use `llm_judge` later; require reference facts, rubric and evidence, and report its share. Do not implement/run LLM judging now.
+Default to deterministic: canonical entity/alias, normalized exact text, numeric with explicit tolerance/units, ISO date, boolean, category, ordered/unordered list. Allow short phrases/sentences with accepted paraphrases or fact-specific rules. User update (2026-10-28): target **approximately 30% of all questions** with sentence/free-text answers evaluated by `llm_judge`, keeping a deterministic majority. Require reference facts, accepted factual elements, rubric and evidence, and report its share. This track is planned, not implemented or run; preserve the active GEN-1 baseline. The judge evaluates answers against evidence-backed references, not factual truth by itself.
 
 ## Immediate checks
 Schema and references, selected-context evidence, unique answer or explicitly defined multi-answer, graph query execution, duplicates/near duplicates, answer type/evaluation compatibility, provenance, source completeness, basic review queue. Avoid accepting inferred facts solely from model confidence. Human review for uncertain/causal/depth claims.

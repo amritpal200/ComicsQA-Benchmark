@@ -303,6 +303,19 @@ CRL gets navigation, inverse and predicate operations for it automatically.
 
 ## 5. Comic Reasoning Language (CRL)
 
+Implementation checkpoint (2026-10-28): the page-level CRL-1 profile is implemented and tested.
+See the [executable contract and CLI](../../src/comics_qa/tasks/graph/crl/README.md) for exact
+signatures, coverage rules, output schema, and current evidence gates. The sections below remain
+the broader language design: spatial operations, edits, and determinability are later-stage work;
+quote/mention/panel anchors currently return UNKNOWN. Sort-key ties and tied selected top-k ranks
+are conservatively AMBIGUOUS in this profile. CRL-2 independent proof checking is implemented;
+see the [checker contract and CLI](../../src/comics_qa/tasks/graph/crl/CHECKER.md).
+GEN-1's bounded page-core generator is also implemented; see its
+[executable profile, gate limits, quotas and resume contract](../../src/comics_qa/tasks/graph/generation/README.md).
+Its full-collection run remains user-run. The profile records scope tiers and raw dimensions;
+the broader design's difficulty levels and uncertain-evidence perturbations are not claimed
+as calibrated or applicable to these first candidates.
+
 ### 5.1 Design
 
 CRL is:
@@ -780,15 +793,33 @@ clearest change (margins still apply in the edited world).
 
 ### 8.7 Optional LLM-guided proposals
 
-Qwen gets a compact, ID-free graph summary and proposes "interesting" programs in CRL. They are
-parsed, type-checked and executed, and they **never bypass the gates**. Their purpose is narrative
-interest and diversity.
+User decision (2026-10-28): add a distinct **answer-conditioned Qwen-32B-Thinking** proposal
+track alongside the current proof-backed graph baseline. This is planned, not implemented, and
+is more than VERB-1 paraphrasing an unchanged program.
+
+Select a verified answer and starting graph question/program. Assemble the relevant selected-node
+and neighboring-relation evidence: page positions, associated Qwen captions, OCR, character
+grounding and other available annotations, preserving source pointers and trust labels. Give
+Qwen this private evidence pack and the fixed answer, and ask it to propose a more demanding
+question whose answer is that target. Complexity must come from necessary, supported constraints,
+not added verbosity, answer hints, or invented causes/intentions.
+
+Independently reconstruct the new program or supported factual claims, execute/check them, and
+verify the target answer, uniqueness, clause necessity, name visibility and leakage. Merely matching
+the supplied answer does not establish question correctness. Model captions/grounding stay
+fallible observations until validated; LLM judging cannot substitute for evidence.
+
+Planned record flag: `question_type = graph_verified | qwen_answer_conditioned`. Keep semantic
+`family`, `answer_type`, and evaluation method separate. This track is independent of the target
+of approximately 30% sentence/free-text answers evaluated with evidence-backed LLM-judge rubrics.
+The evidence pack and supplied target answer stay private and are not model-facing test inputs.
 
 ### 8.8 Balancing and coverage quotas
 
 - Quotas per chapter, split (seen/unseen), level, relation family, format, answer type.
 - GEN-1 acceptance quotas (decision 2026-10-27): at most ~30% of character-name answers may be the chapter's most frequent characters; two-option answers (including yes/no and left/right) have a ~5% share. Enforce while constructing the accepted generation set; EXP-1 rechecks and runs baselines. Define the frequent-character set, ties and quota denominators explicitly in GEN-1 configuration and its manifest.
 - Before GEN-1, every character name used in a question or answer must have verified readability evidence somewhere in the full chapter context. CKG-2 supplies this from aligned OCR agreement or individual verification; ambiguous aliases and generic labels do not establish name visibility. Raw OCR matches are candidates, not automatic verification.
+- CKG-2's companion records **exact-form lexical visibility**. GEN-1 must check its actual rendered string via `form_is_visible`; an observed alias does not certify an unseen full canonical name. Agreement is limited to the name span and does not certify the complete quote or a semantic mention referent. Short forms require explicit visual review. Source pointers, geometric alignment and per-model text are retained; original graph coverage stays unchanged.
 - Support page position: spread across the start, middle and end of the context.
 - Booleans 45–55% true; count values spread.
 
@@ -970,7 +1001,10 @@ Annotation noise becomes a measurable filter rather than hidden label noise. Per
 
 ## 14. Answer types and scoring
 
-Graph items are scored deterministically, with no LLM judge.
+The current graph baseline is scored deterministically. User update (2026-10-28): a future
+extension should target approximately 30% sentence/free-text answers evaluated by an LLM judge,
+with evidence-backed references, accepted factual elements and rubrics. This extension is not
+implemented yet; it does not change the running GEN-1 baseline or let a judge invent evidence.
 
 | Type | Canonical form | Normalization | Scoring |
 |---|---|---|---|
@@ -1142,8 +1176,8 @@ Each stage: plan → approval → implement → CPU tests → commands for the u
 | CRL-1 | Language core: types, parser (surface, S-expression, JSON), type checker, interpreter, three-valued semantics, proofs. Operation families A–E and G–H at page level. |
 | CRL-2 | Independent proof checker plus differential tests |
 | GEN-1 | Generators: forward enumeration, constraint accretion, answer-first aggregates. Gates G1–G9 and possible worlds, using glosses only. Enforce chapter name readability and generation-time guessability quotas (§8.8). |
-| VERB-1 | Verbalization and round trip on MN5 via the spec 08 interface. Dry run with glosses first. |
-| CKG-3 | Panel, spatial, inner reading order and richer mention operations, after the panel audit and OCR. Basic name visibility is already required before GEN-1. |
+| VERB-1 | CPU request preparation and fixed-gloss round trips implemented; Qwen inference and independent natural-language round trip deferred to MN5 after CKG-3/GEN-2 (2026-10-28). Final review/export follows inference. |
+| CKG-3 | Rich evidence companion implemented 2026-10-28: full OCR consensus, review-gated panels/order and semantic mentions, same-panel geometry. Full build and visual review user-run. Consumer interpreter/checker extensions remain for GEN-2; basic name visibility already precedes GEN-1. |
 | GEN-2 | Counterfactual edits, determinability, multi-part, summary verification, noise clauses, contrast pairs |
 | EXP-1 | Export to the spec 09 contract; reports for yield, coverage, dimensions and trust mix; recheck generation quotas and run random/frequency/text-only baselines |
 

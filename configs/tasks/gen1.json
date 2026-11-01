@@ -1,0 +1,35 @@
+{
+  "version": "gen1.1",
+  "seed": 42,
+  "max_candidates_per_chapter": 600,
+  "max_items_per_chapter": 80,
+  "max_per_family": 24,
+  "max_per_answer_support": 1,
+  "max_constraint_candidates_per_target": 32,
+  "max_clauses": 3,
+  "count_targets": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "frequent_top_k": 2,
+  "frequent_metric": "trusted_distinct_page_presence",
+  "frequent_ties": "include_cutoff_ties",
+  "max_frequent_name_share": 0.3,
+  "max_two_option_share": 0.05,
+  "boolean_true_share": [
+    0.45,
+    0.55
+  ],
+  "allow_closed_assumed": true,
+  "max_steps": 50000,
+  "max_worlds": 64
+}

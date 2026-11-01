@@ -1,0 +1,23 @@
+{
+  "version": "benchmark1000.policy.1",
+  "target_items": 1000,
+  "minimum_chapters": 40,
+  "maximum_per_chapter": 40,
+  "minimum_identities": 150,
+  "minimum_long_relational": 200,
+  "minimum_visual_character_share": 0.15,
+  "two_option_share": 0.05,
+  "minimum_denominator": 20,
+  "small_pool_absolute_cap": 3,
+  "identity_share": 0.25,
+  "page_plus_one_share": 0.20,
+  "modal_count_share": 0.25,
+  "top1_share": 0.20,
+  "top2_share": 0.30,
+  "primary_groups": {"short": 120, "chain": 230, "branch_combine": 220, "aggregate_compare": 80, "paired": 100, "sentence": 250},
+  "split_counts": null,
+  "interpretive_allowed": false,
+  "legacy_policy": "unchanged",
+  "coverage": "closed_or_explicit_closed_assumed",
+  "human_sentence_review": "every_item"
+}

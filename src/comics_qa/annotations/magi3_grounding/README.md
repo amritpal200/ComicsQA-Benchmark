@@ -47,3 +47,47 @@ words) and finds fewer characters, so it isn't used by default.
   pages are skipped.
 - **Reliability:** grounding is model-inferred; the paper reports F1 0.69–0.74 on PopCaptions.
   Use only `matched` links as names, and send `ambiguous` links to review.
+
+## Guarded recovery (2026-10-29)
+
+The repository-local `guards.py` wraps the loaded language decoder, without
+editing the installed model. Before each strict chunk it checks actual prefix
+length plus requested new tokens against positional capacity. A trailing run of
+64 location/special tokens without caption progress fails the panel safely.
+Prediction validation rejects malformed spans/boxes, changed caption words in
+strict mode, and more than 128 raw boxes (a conservative quarantine threshold,
+not a dataset truth). These failures produce partial pages and a nonzero final
+exit status instead of a CUDA device assertion. Fatal CUDA errors still stop the
+worker; continuing a poisoned CUDA context is unsafe.
+
+Strict postprocessing sometimes drops punctuation. Word-preserving punctuation/
+whitespace changes remain explicitly `caption_exact=false`, with validation mode
+`punctuation_or_whitespace_only`; they are never relabelled exact. The input
+caption stays unchanged. Word changes are rejected. This is operational validation,
+not proof that model boxes or character matches are visually correct.
+
+To preserve an old run, use a new output and `--reuse-from`:
+
+```bash
+GROUNDING_OUT=/data/151-3/comics/ComicsQA_Benchmark/annotations/magi3_grounding_recovery_v1 \
+  bash scripts/ground_magi3.sh --gpus 4 \
+  --reuse-from /data/151-3/comics/ComicsQA_Benchmark/annotations/magi3_grounding
+```
+
+Do not launch this command while another worker holds the same output shard.
+Current completed outputs are revalidated before skipping. Old pages are copied
+only if their signature and every saved panel pass the new checks; otherwise the
+page is inferred again. Original files stay untouched. Copied pages record
+`revalidated_by` and `reused_from`; newly inferred pages record `guard_version`.
+Existing signature settings remain compatible so safe old work can be reused.
+Rerunning the same command skips validated completed pages and retries partial
+ones; a deterministic guard failure may remain partial on repeated runs. Do not
+interpret a successful restart as complete dataset coverage.
+
+2026-10-29 tests: 19 CPU tests passed. On cudahpc51 GPU 4 (L40S), the three former
+crash pages completed processing without CUDA failure: Chainsaw Man c002 p023
+8/9 panels, Death Note c002 p024 4/5, Jujutsu Kaisen c002 p019 6/6. The two missing
+panels were explicitly rejected by the no-progress guard. Smoke outputs:
+`/tmp/comicsqa-grounding-guard-smoke`. Old-run reuse audit: 1,074 reusable pages,
+10 needing retry, plus 938 previously missing pages. Full recovery was launched
+with the command above; consult its logs for current progress.

@@ -1,4 +1,129 @@
-# Comic Knowledge Graph: audit, review and CKG-1
+# Comic Knowledge Graph: audit, chapter graphs and name visibility
+
+## CKG-2: OCR alignment and name visibility
+
+Run after the full CKG-1 build:
+
+```bash
+bash scripts/build_ckg2.sh
+```
+
+Output: `$BENCH_ROOT/evidence/name_visibility/v1/`, with the usual default root
+`/data/151-3/comics/ComicsQA_Benchmark`. Inspect `report.md` or `report.json`.
+This is a CPU/stdlib companion to the existing graph, using saved OCR outputs.
+It performs no model inference and does not modify CKG-1 or its coverage records.
+
+For a bounded run or restart:
+
+```bash
+bash scripts/build_ckg2.sh --chapter dragon-ball__c002 \
+  --out /tmp/ckg2-dragon-ball
+bash scripts/build_ckg2.sh --chapter dragon-ball__c002 \
+  --out /tmp/ckg2-dragon-ball --resume
+```
+
+Every selected chapter includes all its pages. The input graph hashes, pinned
+core/audit/review dependencies, current source hashes and image bytes are checked.
+Changed sources require new upstream snapshots. Partial output uses atomic
+chapter writes/checkpoints and a process lock; completed shards are verified on
+resume. Changed policy/code/decisions/configuration requires a fresh output path.
+Existing output is rejected without `--resume`. Individual roots are configurable
+with `--graphs`, `--core`, `--audit`, `--review`, `--images`, `--human`, `--magi3`,
+`--ocr`, and `--out`.
+
+### Verification policy
+
+- Align PaddleOCR's source boxes to **MAGI OCR bboxes**, not MAGI detection indices.
+  Default IoU is at least 0.5. Both sides must have a unique substantial overlap;
+  competing overlaps covering at least 0.5 of the smaller box reject split/merge
+  or duplicate matches. `--min-iou` may be raised; `--ambiguity-overlap` may be
+  lowered for stricter rejection. Regions are never concatenated automatically.
+- Match exact contiguous word-token sequences after NFKC, casefold and apostrophe
+  normalization. Whitespace/punctuation separate tokens. No fuzzy spelling,
+  word reordering, invented aliases or automatic hyphen joining is used.
+- Only canonical names and allowed graph aliases can verify an identity. Ambiguity
+  is checked against stored core flags and normalized aliases across the series,
+  including identities absent from the selected chapter. An alias inside a longer
+  name of another identity is blocked. Generic identities are excluded.
+- Automatic V evidence requires the **same exact form** in both aligned regions,
+  usable PaddleOCR (`ok`, not truncated, complete page), and complete MAGI OCR with
+  `generation.ocr.possibly_truncated == false`. Missing quality metadata is not
+  accepted as confirmation. Forms shorter than three alphanumeric characters
+  require individual visual review, even when both OCR models agree.
+- Verification applies to the name span, not the surrounding transcript. For
+  example, both models can verify `Bulma` while disagreeing on another word.
+  `full_transcript_agreement` is reported separately and does not automatically
+  certify quote-answer tasks.
+
+The evidence establishes lexical readability of a form, not whether an ordinary
+word is being used as a name, who is mentioned, who speaks, or who is addressed.
+Those question semantics require their own evidence and checks. This distinction
+matters for name parts that are also common words or role labels.
+
+### Companion contract for CRL/GEN-1
+
+`chapters/<chapter_id>.json` contains:
+
+| Field | Contents |
+|---|---|
+| `page_ids`, `graph_source` | Full chapter scope and pinned CKG-1 shard |
+| `alignments` | All PaddleOCR regions plus unmatched MAGI OCR regions; geometric scores/status, raw transcripts, boxes and quality flags |
+| `evidence` | Stable evidence IDs, exact forms, token spans, identity/page/text references, source pointers/hashes and verification decisions |
+| `visibility` | Per-identity verified forms, canonical-name visibility, visible pages, verified/candidate/rejected evidence IDs |
+| `policy`, `coverage_effect` | Explicit thresholds/normalization and unchanged graph coverage |
+
+The root also contains `report.md`, `report.json`, `inputs.jsonl`, `build_config.json`,
+`checkpoints/`, and `manifest.json`. Report identity/form counts are summed over
+chapter scopes; the same named identity in two chapters can count twice.
+
+Evidence is `verified` (V), `candidate` (M) or `rejected` (M). Identity status is
+`verified`, `not_verified` or `generic_excluded`. **Not verified does not mean the
+name is absent.** Failed alignment or missing OCR can prevent verification.
+
+Names on pages without human annotations can support chapter readability if both
+OCR models agree. Such evidence uses `text_id: null` and a separate OCR `region_id`;
+it creates no human text node or speaker fact. Human coverage stays absent.
+
+GEN-1 must check the actual string it plans to put in the question or answer:
+
+```python
+from name_visibility import form_is_visible
+form_is_visible(chapter_visibility, identity_id, rendered_form)
+```
+
+This helper expects a validated, manifest-pinned companion. Seeing `Goku` alone
+does not authorize rendering `Son Goku`. Neither name readability nor a verified
+positive occurrence closes OCR/character/speaker coverage or proves name absence.
+Richer semantic `mentions` relations remain a later-stage concern.
+
+### Optional individual visual review
+
+Use a JSONL file with one explicit decision per evidence ID. Inspect the original
+page/region first and copy the exact evidence ID, chapter ID and image checksum
+from the candidate. Example record shape (replace placeholders):
+
+```json
+{"evidence_id":"namevis:<copy exact ID>","chapter_id":"death-note__c001","image_sha256":"<copy image hash>","status":"verified","reviewer":"reviewer identifier","note":"Checked the original region; the letter is readable as the name L.","transcription":"I am L."}
+```
+
+Then create a new output:
+
+```bash
+bash scripts/build_ckg2.sh --decisions /path/to/decisions.jsonl \
+  --out /data/151-3/comics/ComicsQA_Benchmark/evidence/name_visibility/reviewed_v1
+```
+
+Allowed verdicts are `verified` and `rejected`. Verification requires a transcription
+containing the exact form, reviewer and note. Rejection can revoke automatic
+agreement evidence; it does not need a transcription. Decisions pin the image hash
+and evidence ID, so stale/unknown targets fail. Ambiguous identity aliases cannot
+be approved through a visibility-only review. Decisions for unselected chapters
+in the same graph collection are left for those chapter builds.
+
+The output records both the automatic result and the explicit decision/source hash.
+No human review decisions are invented or applied by default. Exit 0 means the
+build completed, not that every name was verified; exit 1 indicates a failure and
+exit 2 invalid CLI usage.
 
 ## CKG-1 chapter graph builder
 
@@ -246,3 +371,13 @@ Validation:
 ```bash
 python3 -m unittest discover -s tests -p 'test_ckg0*.py' -v
 ```
+
+## CKG-3 richer evidence
+
+Implemented as a separate immutable companion under `evidence/ckg3/v1`, preserving
+CKG-1/2 and GEN-1. Run `bash scripts/build_ckg3.sh` (CPU, user-run); see
+[CKG-3 contract and visual review workflow](rich/README.md). Full OCR consensus is
+automatic where strict agreement holds; panels, within-page order and semantic
+mentions require explicit snapshot-bound visual decisions. The initial build is
+expected to retain unreviewed candidates. CRL consumption remains a separate
+interpreter/checker integration for GEN-2.

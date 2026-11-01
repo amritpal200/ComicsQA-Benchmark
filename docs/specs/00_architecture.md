@@ -5,7 +5,7 @@ and source table below describe historical architecture only. Follow `docs/STATU
 for the active CKG/CRL stage order, review inputs and coordination between agents.
 
 ## Goal
-Implement a modular pipeline for chapter-scoped, evidence-grounded manga QA from the full supplied PopManga collection. QAs may answer with a name, phrase, sentence, number, date, boolean or list; favor deterministic evaluation, with a small configurable LLM-judge subset.
+Implement a modular pipeline for chapter-scoped, evidence-grounded manga QA from the full supplied PopManga collection. QAs may answer with a name, phrase, sentence, number, date, boolean or list; retain a deterministic majority, with a planned approximately 30% sentence/free-text LLM-judge subset (user update 2026-10-28; not yet implemented).
 
 ## Dependency DAG
 ```
