@@ -247,6 +247,47 @@ def main(argv=None):
     diagnosis.add_argument('--family', action='append')
     diagnosis.add_argument('--max-queries', type=int, default=12)
     diagnosis.add_argument('--out', type=Path, required=True)
+    story_pilot = sub.add_parser('story-pilot', help='Story families without page numbers (quote attribution, quote order)')
+    story_pilot.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    story_pilot.add_argument('--chapter', action='append')
+    story_pilot.add_argument('--per-family', type=int, default=12)
+    story_pilot.add_argument('--out', type=Path, required=True)
+    story_check = sub.add_parser('check-story', help='Independent re-check of every story item against the evidence')
+    story_check.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    story_check.add_argument('--store', type=Path, required=True)
+    story_check.add_argument('--out', type=Path, required=True)
+    ev_prep = sub.add_parser('prepare-events', help='Event statements + outlined/control panel images from grounded captions')
+    ev_prep.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    ev_prep.add_argument('--grounding', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark/annotations/magi3_grounding_recovery_v1'))
+    ev_prep.add_argument('--chapter', action='append')
+    ev_prep.add_argument('--out', type=Path, required=True)
+    ev_run = sub.add_parser('verify-events', help='Resumable yes/no answers from an independent VLM endpoint')
+    ev_run.add_argument('--requests', type=Path, required=True)
+    ev_run.add_argument('--endpoint', default='http://localhost:18101/v1')
+    ev_run.add_argument('--model', default='internvl3-14b')
+    ev_run.add_argument('--workers', type=int, default=16)
+    ev_run.add_argument('--limit', type=int)
+    ev_run.add_argument('--out', type=Path, required=True)
+    ev_in = sub.add_parser('ingest-events', help='Accept positive=yes and control=no; write facts and audit sample')
+    ev_in.add_argument('--requests', type=Path, required=True)
+    ev_in.add_argument('--responses', type=Path, required=True)
+    ev_in.add_argument('--out', type=Path, required=True)
+    ev_audit = sub.add_parser('record-event-audit', help='Record correct/wrong for the event audit sample; pass/fail')
+    ev_audit.add_argument('--facts', type=Path, required=True)
+    ev_audit.add_argument('--decisions', type=Path, required=True)
+    ev_audit.add_argument('--max-errors', type=int, default=3)
+    ev_audit.add_argument('--out', type=Path, required=True)
+    ev_pilot = sub.add_parser('event-pilot', help='Event question families from audited event facts')
+    ev_pilot.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    ev_pilot.add_argument('--facts', type=Path, required=True)
+    ev_pilot.add_argument('--audit', type=Path, required=True)
+    ev_pilot.add_argument('--chapter', action='append')
+    ev_pilot.add_argument('--per-family', type=int, default=8)
+    ev_pilot.add_argument('--out', type=Path, required=True)
+    story = sub.add_parser('story-profile', help='Content category/anchor/wording profile and gap to story targets (read-only)')
+    story.add_argument('--store', type=Path, action='append', required=True)
+    story.add_argument('--targets', type=Path, default=Path(__file__).resolve().parents[3] / 'configs/benchmark1000/story_targets_v1.json')
+    story.add_argument('--out', type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         if hasattr(args, 'out'):
@@ -286,6 +327,38 @@ def main(argv=None):
         elif args.command == 'alias-review-page':
             from .alias_packet import create
             result = create(args.requests, args.bench_root, args.out, args.max_evidence)
+        elif args.command == 'story-pilot':
+            from .story_families import run as story_run
+            report = story_run(args.bench_root, args.out, args.chapter, {'per_family': args.per_family})
+            result = {'output': str(args.out), 'candidates': report['candidates'], 'families': report['families'],
+                      'rejected': report['rejected'], 'release_status': 'not_approved'}
+        elif args.command == 'check-story':
+            from .story_families import recheck
+            report = recheck(args.bench_root, args.store)
+            publish(args.out, report)
+            result = {'output': str(args.out), 'verified': report['verified'], 'rejected': report['rejected']}
+        elif args.command == 'prepare-events':
+            from .events import prepare as prepare_events
+            result = {'output': str(args.out), **prepare_events(args.bench_root, args.grounding, args.out, args.chapter)}
+        elif args.command == 'verify-events':
+            from .events import verify as verify_events
+            result = {'output': str(args.out), **verify_events(args.requests, args.endpoint, args.model, args.out, args.workers, args.limit)}
+        elif args.command == 'ingest-events':
+            from .events import ingest as ingest_events
+            report = ingest_events(args.requests, args.responses, args.out)
+            result = {'output': str(args.out), 'requests': report['requests'], 'accepted': report['accepted'], 'outcomes': report['outcomes']}
+        elif args.command == 'record-event-audit':
+            from .story_events import record_audit
+            result = {'output': str(args.out), **record_audit(args.facts, args.decisions, args.out, args.max_errors)}
+        elif args.command == 'event-pilot':
+            from .story_events import run as event_run
+            report = event_run(args.bench_root, args.facts, args.audit, args.out, args.chapter, {'per_family': args.per_family})
+            result = {'output': str(args.out), 'candidates': report['candidates'], 'families': report['families'], 'rejected': report['rejected']}
+        elif args.command == 'story-profile':
+            from .story_profile import run as profile_run
+            report = profile_run(args.store, args.targets, args.out)
+            result = {'output': str(args.out), 'candidates': report['summary']['candidates'],
+                      'total_shortfall_natural': report['summary']['total_shortfall_natural'], 'release_status': 'not_approved'}
         elif args.command == 'diagnose-families':
             from .diagnose_families import run
             report = run(args.source, args.bench_root, args.out, args.chapter, args.max_queries, args.family)

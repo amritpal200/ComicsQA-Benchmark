@@ -39,6 +39,9 @@ def ingest(sources, out, chapters=None):
 def load(root, include_proposals=False):
     root = Path(root).resolve()
     manifest = verify_manifest(root)
+    if manifest.get('schema') == 'comics_qa.benchmark1000.story_store.1':
+        from .story_families import load as load_story
+        return load_story(root)
     if manifest.get('schema') == 'comics_qa.benchmark1000.contrast_store.1':
         from .contrast_pilot import load as load_contrast
         return load_contrast(root)

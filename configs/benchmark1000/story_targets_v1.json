@@ -1,0 +1,23 @@
+{
+  "version": "benchmark1000.story_targets.1",
+  "source": "docs/notes/benchmark_improvements.md sections 3.1-3.4 (proposal; decisions D-A/D-B pending)",
+  "total": 1000,
+  "categories": {
+    "dialogue": 200,
+    "character": 180,
+    "event": 160,
+    "story_order": 120,
+    "multi_hop": 220,
+    "contrast": 70,
+    "perception": 50
+  },
+  "max_share": {
+    "box_count": 0.05,
+    "count_answer": 0.15,
+    "perception": 0.05,
+    "procedural": 0.05,
+    "page_reference": 0.35,
+    "page_answer": 0.15
+  },
+  "min_multi_hop_story_hops": 3
+}

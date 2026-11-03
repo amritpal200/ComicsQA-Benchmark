@@ -15,6 +15,9 @@ def validate(item):
     if item.get('schema') == 'comics_qa.benchmark1000.admitted_native.1':
         from .admission_store import validate as validate_admitted
         return validate_admitted(item)
+    if item.get('schema') == 'comics_qa.benchmark1000.story_item.1':
+        from .story_families import validate as validate_story
+        return validate_story(item)
     if item.get('schema') == 'comics_qa.benchmark1000.native.1':
         from .native import validate as validate_native
         return validate_native(item)

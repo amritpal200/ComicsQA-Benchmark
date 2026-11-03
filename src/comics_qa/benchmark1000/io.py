@@ -80,6 +80,7 @@ def publish(path, value):
             raise ValueError('Existing output differs; choose a new version: ' + str(path))
         return
     fd, temp = tempfile.mkstemp(prefix='.b1000-', dir=path.parent)
+    os.fchmod(fd, 0o644)  # shared outputs are world-readable, like the annotation runs
     try:
         with os.fdopen(fd, 'wb') as f:
             f.write(raw)
