@@ -2,7 +2,7 @@
 # Local free-generation model server (expansion plan X4): Qwen3-VL-32B on one local GPU, OpenAI-compatible, 32k context.
 # Reuses the locked Qwen annotation environment (vLLM 0.11.2). Keep it running in its own screen.
 # Usage: bash scripts/benchmark1000_generator_server.sh --gpu 0 [--port 18201] [--mem 0.6] [--thinking]
-#   default model: Qwen/Qwen3-VL-32B-Instruct-FP8 (cached); --thinking: /data/151-3/comics/models/Qwen3-VL-32B-Thinking
+#   default model: Qwen/Qwen3-VL-32B-Instruct-FP8 (cached, --mem 0.6); --thinking: /data/151-3/comics/models/Qwen3-VL-32B-Thinking (BF16, --mem 0.92, needs an empty 97 GB GPU)
 set -euo pipefail
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 storage="${CD_STORAGE:-/data/151-3/comics}"
@@ -15,7 +15,7 @@ export VLLM_CACHE_ROOT="${VLLM_CACHE_ROOT:-$storage/.cache/freegen/vllm}"
 export TRITON_CACHE_DIR="${TRITON_CACHE_DIR:-$storage/.cache/freegen/triton}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$storage/.cache/freegen/xdg}"
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
-gpu=""; port=18201; mem=0.6; model="Qwen/Qwen3-VL-32B-Instruct-FP8"; served="qwen3-vl-32b-instruct-fp8"
+gpu=""; port=18201; mem=""; model="Qwen/Qwen3-VL-32B-Instruct-FP8"; served="qwen3-vl-32b-instruct-fp8"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --gpu) gpu="$2"; shift 2 ;;
@@ -25,6 +25,8 @@ while [[ $# -gt 0 ]]; do
     *) echo "unknown option $1" >&2; exit 2 ;;
   esac
 done
+# Thinking is BF16 (63 GB weights): needs ~0.92 of a 97 GB card; Instruct-FP8 (~35 GB) fits in 0.6.
+[[ -n "$mem" ]] || { [[ "$served" == *thinking ]] && mem=0.92 || mem=0.6; }
 [[ -n "$gpu" ]] || { sed -n '2,5p' "${BASH_SOURCE[0]}"; exit 2; }
 cd "$repo/src/comics_qa/annotations/qwen"
 uv sync --frozen --group server

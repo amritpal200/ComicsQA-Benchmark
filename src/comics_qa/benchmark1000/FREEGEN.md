@@ -52,7 +52,7 @@ bash scripts/benchmark1000.sh ingest-freegen --requests $B/freegen_pilot_request
 bash scripts/benchmark1000.sh check-story --store $B/freegen_pilot --out $B/freegen_pilot.check.json
 ```
 
-With `--thinking`, use `--model qwen3-vl-32b-thinking` and a larger `--max-tokens` (e.g. 12000).
+With `--thinking` (BF16, 63 GB weights: the script defaults to `--mem 0.92`, so it needs an empty 97 GB GPU), use `--model qwen3-vl-32b-thinking` and a larger `--max-tokens` (e.g. 12000).
 
 ## Verification (2026-11-05)
 
