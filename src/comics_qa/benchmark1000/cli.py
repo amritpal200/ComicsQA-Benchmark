@@ -294,6 +294,26 @@ def main(argv=None):
     experimental.add_argument('--chapter', action='append')
     experimental.add_argument('--per-family', type=int, default=8)
     experimental.add_argument('--out', type=Path, required=True)
+    fg_prep = sub.add_parser('prepare-freegen', help='Free generation: chapter evidence packs (page/window/selection/chapter)')
+    fg_prep.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    fg_prep.add_argument('--events', type=Path, help='Audited event facts to include (e.g. reports/benchmark1000/events_v1)')
+    fg_prep.add_argument('--chapter', action='append')
+    fg_prep.add_argument('--per-level', type=int, default=2)
+    fg_prep.add_argument('--items-per-pack', type=int, default=8)
+    fg_prep.add_argument('--out', type=Path, required=True)
+    fg_run = sub.add_parser('run-freegen', help='Ask a local OpenAI-compatible endpoint for proposals (resumable)')
+    fg_run.add_argument('--requests', type=Path, required=True)
+    fg_run.add_argument('--endpoint', default='http://localhost:18201/v1')
+    fg_run.add_argument('--model', default='qwen3-vl-32b-instruct-fp8')
+    fg_run.add_argument('--workers', type=int, default=4)
+    fg_run.add_argument('--limit', type=int)
+    fg_run.add_argument('--max-tokens', type=int, default=6000)
+    fg_run.add_argument('--out', type=Path, required=True)
+    fg_in = sub.add_parser('ingest-freegen', help='Validate proposals by typed claims; accepted -> experimental story store')
+    fg_in.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    fg_in.add_argument('--requests', type=Path, required=True)
+    fg_in.add_argument('--responses', type=Path, required=True)
+    fg_in.add_argument('--out', type=Path, required=True)
     story = sub.add_parser('story-profile', help='Content category/anchor/wording profile and gap to story targets (read-only)')
     story.add_argument('--store', type=Path, action='append', required=True)
     story.add_argument('--targets', type=Path, default=Path(__file__).resolve().parents[3] / 'configs/benchmark1000/story_targets_v1.json')
@@ -372,6 +392,17 @@ def main(argv=None):
             from .story_experimental import run as experimental_run
             report = experimental_run(args.bench_root, args.out, args.chapter, {'per_family': args.per_family})
             result = {'output': str(args.out), 'candidates': report['candidates'], 'families': report['families'], 'rejected': report['rejected']}
+        elif args.command == 'prepare-freegen':
+            from .freegen import prepare as fg_prepare
+            result = {'output': str(args.out), **fg_prepare(args.bench_root, args.out, args.chapter,
+                                                            {'per_level': args.per_level, 'items_per_pack': args.items_per_pack}, args.events)}
+        elif args.command == 'run-freegen':
+            from .freegen import run as fg_run
+            result = {'output': str(args.out), **fg_run(args.requests, args.endpoint, args.model, args.out, args.workers, args.limit, args.max_tokens)}
+        elif args.command == 'ingest-freegen':
+            from .freegen import ingest as fg_ingest
+            report = fg_ingest(args.bench_root, args.requests, args.responses, args.out)
+            result = {'output': str(args.out), 'accepted': report['candidates'], 'reasons': report['reasons'], 'by_level': report['accepted_by_level']}
         elif args.command == 'story-profile':
             from .story_profile import run as profile_run
             report = profile_run(args.store, args.targets, args.out)

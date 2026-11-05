@@ -26,13 +26,13 @@ from .io import digest, member, publish, read, separate, stable, verify_manifest
 
 VERSION = 'story_families.4'
 VERSIONS = ('story_families.1', 'story_families.2', 'story_families.3', VERSION, 'story_events.1', 'story_expand.1',
-            'story_experimental.1')
+            'story_experimental.1', 'freegen.1')
 CLOSED = ('closed_assumed', 'closed_audited', 'closed_verified')
 ITEM = 'comics_qa.benchmark1000.story_item.1'
 STORE = 'comics_qa.benchmark1000.story_store.1'
 FAMILIES = ('quote_speaker_choice', 'quote_speaker_open', 'quote_order', 'conversation_partner', 'next_speech_partner', 'shared_character',
             'event_actor_choice', 'event_order', 'script_error', 'speaker_table', 'name_trap', 'line_of_character',
-            'next_line_speaker', 'page_line_order')
+            'next_line_speaker', 'page_line_order', 'free_generation')
 LETTERS = 'ABCD'
 DEFAULTS = {'min_words': 4, 'min_chars': 16, 'max_similarity': 0.6, 'per_family': 12, 'per_answer_identity': 3,
             'order_lines': 4, 'seed': 0, 'pairs_per_kind': 3}

@@ -25,9 +25,9 @@ reasoning tag `long_relational` where it applies.
 |---|---|---|---|
 | X1 | Creative types from human annotations (8C.2/8C.3), as story families with independent checks: **script error spotting**, **speaker table**, **name-in-bubble trap**, **line of character** (incl. the "says nothing on that page" answer = false-premise/absent-entity) | CPU | implemented 2026-11-03 (`expand-pilot`, `story_expand.1`); bounded 4 chapters 89/89; full run user-run |
 | X2 | More types: proximity trap (tails + boxes), who-is-missing, distant co-reference, true/false relation check (with verified-false near misses), natural clue puzzles (constraint accretion + necessity) → `long_relational` tag | CPU | planned |
-| X3 | 8B preparation: pack serializer at four levels (page/window/selection/chapter) with fact IDs + provenance; proposal schema; validator; claim checking (reuse P10); uniqueness via the distinctiveness certificate | CPU | planned |
+| X3 | 8B preparation: pack serializer at four levels (page/window/selection/chapter) with IDs + provenance; typed-claim proposal schema; independent validator; local server script | CPU | implemented 2026-11-05 ([FREEGEN.md](../../src/comics_qa/benchmark1000/FREEGEN.md)); ingest path tested on real data |
 | X1b | Experimental within-page order families: **next line speaker** ("right after someone says …, who speaks next?") and **same-page line order**; `track=experimental` | CPU | implemented 2026-11-05 (`experimental-pilot`, `story_experimental.1`); bounded 4 chapters 51/51; full run user-run |
-| X4 | 8B pilot: local Qwen3-VL-32B (Instruct-FP8 or Thinking), 3–5 chapters, ~50 items/chapter; pass rates and rejection reasons per level; AI hand check of 50 accepted | local GPU (user-run) | after X3 |
+| X4 | 8B pilot: local Qwen3-VL-32B (Instruct-FP8 or Thinking), 4 chapters × 4 levels; pass rates and rejection reasons per level; uniqueness judge; AI hand check of 50 accepted | local GPU (user-run) | ready to run |
 | X5 | Harden loop (2–3 rounds, local solver models, e.g. InternVL3-14B) and image edits (masking, page shuffling) | local GPU + CPU | after X4 |
 | → | S9 final selection over all stores, S1 evaluation protocol, S10 Qwen wording | | after X1–X3 at least |
 

@@ -57,6 +57,9 @@ def check(item, g, v, rich, cfg, events=None):
             if len(links) != 1 or len(chars) != 1 or chars[0]['args'][1] != line['speaker'] or \
                     sorted(line['speaker_facts']) != sorted([links[0]['fact_id'], chars[0]['fact_id']]):
                 errors.append('speaker:' + line['text_id'])
+    if item['family'] == 'free_generation':
+        from .freegen_check import check_item  # free generation (freegen.1): typed claims; existing families unchanged
+        return check_item(item, g, v, rich, cfg, events or {})
     if item['family'] in ('script_error', 'speaker_table', 'name_trap', 'line_of_character', 'next_line_speaker', 'page_line_order'):
         from .story_expand_check import check_expand  # expansion families (story_expand.1, story_experimental.1); existing families unchanged
         errors += check_expand(item, g, v, facts, vis, position, lines, cfg)

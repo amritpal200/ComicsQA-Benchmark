@@ -78,7 +78,12 @@ def anchor(item, question):
 def profile(item):
     question = item['question']
     procedural = bool(PROCEDURAL.search(question))
-    if item['schema'] == STORY:
+    if item['schema'] == STORY and item['family'] == 'free_generation':
+        kinds = {c['type'] for c in item['evidence']['claims']}
+        category = ('multi_hop' if len(item['evidence']['claims']) >= 3 else 'event' if 'EVENT' in kinds
+                    else 'dialogue' if 'SAYS' in kinds else 'story_order' if kinds & {'BEFORE', 'NEXT_LINE'} else 'character')
+        unit = 'page_presence' if kinds & {'DRAWN', 'NOT_DRAWN', 'FIRST_DRAWN'} else 'none'
+    elif item['schema'] == STORY:
         category, unit = STORY_FAMILIES[item['family']]
         if 'contrast' in item: category = 'contrast'
     elif item['schema'] == LEGACY:
