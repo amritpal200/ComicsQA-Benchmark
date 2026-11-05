@@ -63,3 +63,14 @@ the true one accepted, the false one rejected (`claim_false`), `check-story` 1/1
 ## Limits
 - Uniqueness of the answer is not proven by claims: every item keeps `needs_uniqueness_check` (a judge step is next).
 - Selection caps free generation at 300 of the final 1,000 until the pilot is measured (E5).
+
+## Pilot (2026-11-05, 4 chapters, 28 packs)
+- Instruct-FP8:
+  - 217 proposed, 75 accepted (35%), `check-story` 75/75.
+  - Accepted by level: page 25, window 24, selection 15, chapter 11.
+  - Rejections: claim_false 69, answer_not_cited 28, unknown_id 19, answer_value 14, claim_syntax 5, answer_in_question 4, duplicate 3.
+- Thinking (BF16, `--max-tokens 12000`, 12 packs):
+  - 9 responses; 8 still reasoning when they hit the token limit (about 12k tokens each); 3 requests got no response.
+  - Only 1 finished, with 8 questions.
+  - Not used: the long-pack prompt is up to 19k tokens, so with a 32k context there is no room to finish reasoning.
+  - Instruct is the generator. The parser now also handles output that contains only the closing `</think>` tag.

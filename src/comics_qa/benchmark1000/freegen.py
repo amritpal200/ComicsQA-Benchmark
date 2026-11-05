@@ -176,6 +176,7 @@ def run(requests_root, endpoint, model, out, workers=4, limit=None, max_tokens=6
 def parse_items(text):
     """First JSON list in the response; tolerant of code fences and surrounding prose."""
     text = re.sub(r'<think>.*?</think>', '', text, flags=re.S)  # reasoning models (Qwen3-VL-Thinking)
+    if '</think>' in text: text = text.rsplit('</think>', 1)[1]  # chat template opens <think> in the prompt
     m = re.search(r'\[.*\]', text, re.S)
     if not m: return None
     try:

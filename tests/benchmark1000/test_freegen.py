@@ -85,6 +85,7 @@ class FreeGenTests(unittest.TestCase):
 
     def test_parse_items(self):
         self.assertEqual(parse_items('<think>maybe [1]?</think> Here: ```json\n[{"q": 1}]\n```'), [{'q': 1}])
+        self.assertEqual(parse_items('reasoning [1] ...</think>\n[{"q": 2}]'), [{'q': 2}])
         self.assertIsNone(parse_items('no list here'))
 
 
