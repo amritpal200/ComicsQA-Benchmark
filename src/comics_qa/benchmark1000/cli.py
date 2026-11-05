@@ -284,6 +284,16 @@ def main(argv=None):
     ev_pilot.add_argument('--chapter', action='append')
     ev_pilot.add_argument('--per-family', type=int, default=8)
     ev_pilot.add_argument('--out', type=Path, required=True)
+    expand = sub.add_parser('expand-pilot', help='Expansion families X1: script error, speaker table, name trap, line of character')
+    expand.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    expand.add_argument('--chapter', action='append')
+    expand.add_argument('--per-family', type=int, default=8)
+    expand.add_argument('--out', type=Path, required=True)
+    experimental = sub.add_parser('experimental-pilot', help='Experimental track: next-line speaker, same-page line order (MAGI reading order)')
+    experimental.add_argument('--bench-root', type=Path, default=Path('/data/151-3/comics/ComicsQA_Benchmark'))
+    experimental.add_argument('--chapter', action='append')
+    experimental.add_argument('--per-family', type=int, default=8)
+    experimental.add_argument('--out', type=Path, required=True)
     story = sub.add_parser('story-profile', help='Content category/anchor/wording profile and gap to story targets (read-only)')
     story.add_argument('--store', type=Path, action='append', required=True)
     story.add_argument('--targets', type=Path, default=Path(__file__).resolve().parents[3] / 'configs/benchmark1000/story_targets_v1.json')
@@ -353,6 +363,14 @@ def main(argv=None):
         elif args.command == 'event-pilot':
             from .story_events import run as event_run
             report = event_run(args.bench_root, args.facts, args.audit, args.out, args.chapter, {'per_family': args.per_family})
+            result = {'output': str(args.out), 'candidates': report['candidates'], 'families': report['families'], 'rejected': report['rejected']}
+        elif args.command == 'expand-pilot':
+            from .story_expand import run as expand_run
+            report = expand_run(args.bench_root, args.out, args.chapter, {'per_family': args.per_family})
+            result = {'output': str(args.out), 'candidates': report['candidates'], 'families': report['families'], 'rejected': report['rejected']}
+        elif args.command == 'experimental-pilot':
+            from .story_experimental import run as experimental_run
+            report = experimental_run(args.bench_root, args.out, args.chapter, {'per_family': args.per_family})
             result = {'output': str(args.out), 'candidates': report['candidates'], 'families': report['families'], 'rejected': report['rejected']}
         elif args.command == 'story-profile':
             from .story_profile import run as profile_run

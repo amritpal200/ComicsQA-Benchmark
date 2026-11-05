@@ -33,7 +33,10 @@ STORY = 'comics_qa.benchmark1000.story_item.1'
 STORY_FAMILIES = {'quote_speaker_choice': ('dialogue', 'none'), 'quote_speaker_open': ('dialogue', 'none'),
                   'quote_order': ('story_order', 'none'), 'conversation_partner': ('character', 'page_presence'),
                   'next_speech_partner': ('multi_hop', 'page_presence'), 'shared_character': ('multi_hop', 'page_presence'),
-                  'event_actor_choice': ('event', 'page_presence'), 'event_order': ('event', 'none')}
+                  'event_actor_choice': ('event', 'page_presence'), 'event_order': ('event', 'none'),
+                  'script_error': ('dialogue', 'none'), 'speaker_table': ('dialogue', 'none'), 'name_trap': ('dialogue', 'none'),
+                  'line_of_character': ('dialogue', 'none'), 'next_line_speaker': ('dialogue', 'none'),
+                  'page_line_order': ('story_order', 'none')}
 BOX_WORDS = re.compile(r'text regions?|depictions?', re.I)
 PRESENCE_WORDS = re.compile(r'\bdrawn\b|\bappears?\b|\bshown\b', re.I)
 PROCEDURAL = re.compile(r'search only|use only pages|start immediately before|condition one|'
@@ -98,6 +101,7 @@ def profile(item):
             'page_reference': bool(PAGE_REFERENCE.search(QUOTED.sub('', question))), 'page_answer': page_answer(item),
             'count_answer': item['answer_format'] == 'count', 'story_hops': hops if isinstance(hops, int) else None,
             'words': len(question.split()),
+            'question_form': item.get('question_form'), 'track': item.get('track', 'official'),
             'human_required': (item.get('verification') or {}).get('human') == 'required'}
 
 
@@ -127,7 +131,7 @@ def summarize(profiles, targets):
     hops = targets['min_multi_hop_story_hops']
     deep = sum(p['content_category'] == 'multi_hop' and (p['story_hops'] or 0) >= hops for p in profiles)
     return {'candidates': n, 'content_category': count('content_category'), 'anchor_type': count('anchor_type'),
-            'wording_style': count('wording_style'), 'unit_dependence': count('unit_dependence'),
+            'wording_style': count('wording_style'), 'unit_dependence': count('unit_dependence'), 'question_form': count('question_form'), 'track': count('track'),
             'caps': shares, 'categories': categories, 'multi_hop_with_certified_min_hops': deep,
             'total_shortfall_natural': sum(v['shortfall_natural'] for v in categories.values()),
             'needs_human_verification': sum(bool(p.get('human_required')) for p in profiles)}
@@ -146,7 +150,7 @@ def markdown(report):
               f"Flagged `needs_human_verification`: {s.get('needs_human_verification', 0)}.", '',
               '| Cap | Candidates | Share of pool | Max items in final 1,000 |', '|---|---:|---:|---:|']
     lines += [f"| {k} | {v['candidates']} | {v['share']:.1%} | {v['final_max_items']} |" for k, v in s['caps'].items()]
-    for field in ('anchor_type', 'wording_style', 'unit_dependence'):
+    for field in ('anchor_type', 'wording_style', 'unit_dependence', 'question_form', 'track'):
         lines += ['', f'{field}: ' + ', '.join(f'{k} {v}' for k, v in s[field].items())]
     return '\n'.join(lines) + '\n'
 

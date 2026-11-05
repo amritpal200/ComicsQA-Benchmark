@@ -25,12 +25,14 @@ from comics_qa.evidence.graph.rich.model import normalize
 from .io import digest, member, publish, read, separate, stable, verify_manifest
 
 VERSION = 'story_families.4'
-VERSIONS = ('story_families.1', 'story_families.2', 'story_families.3', VERSION, 'story_events.1')
+VERSIONS = ('story_families.1', 'story_families.2', 'story_families.3', VERSION, 'story_events.1', 'story_expand.1',
+            'story_experimental.1')
 CLOSED = ('closed_assumed', 'closed_audited', 'closed_verified')
 ITEM = 'comics_qa.benchmark1000.story_item.1'
 STORE = 'comics_qa.benchmark1000.story_store.1'
 FAMILIES = ('quote_speaker_choice', 'quote_speaker_open', 'quote_order', 'conversation_partner', 'next_speech_partner', 'shared_character',
-            'event_actor_choice', 'event_order')
+            'event_actor_choice', 'event_order', 'script_error', 'speaker_table', 'name_trap', 'line_of_character',
+            'next_line_speaker', 'page_line_order')
 LETTERS = 'ABCD'
 DEFAULTS = {'min_words': 4, 'min_chars': 16, 'max_similarity': 0.6, 'per_family': 12, 'per_answer_identity': 3,
             'order_lines': 4, 'seed': 0, 'pairs_per_kind': 3}
@@ -395,7 +397,8 @@ def chapter(g, v, rich, cfg):
             'counts': dict(Counter(i['family'] for i in kept))}
 
 
-def run(bench_root, out, chapters=None, overrides=None):
+def run(bench_root, out, chapters=None, overrides=None, chapter_fn=None, version=VERSION):
+    """Story store build. chapter_fn/version let other family sets (e.g. story_expand) reuse it; defaults are unchanged."""
     from comics_qa.tasks.graph.crl.artifacts import load_world
     from comics_qa.tasks.graph.crl.rich_contract import load_optional
     cfg = dict(DEFAULTS, **(overrides or {}))
@@ -403,7 +406,7 @@ def run(bench_root, out, chapters=None, overrides=None):
     out = separate(out, roots + [root / 'core'])
     available = read(roots[0] / 'manifest.json')['config']['chapters']; chosen = sorted(chapters or available)
     if not chosen or not set(chosen) <= set(available): raise ValueError('Unknown chapter scope')
-    config = {'schema': STORE, 'version': VERSION, 'chapters': chosen, 'settings': cfg,
+    config = {'schema': STORE, 'version': version, 'chapters': chosen, 'settings': cfg,
               'source_manifests_sha256': {str(p): digest(p / 'manifest.json') for p in roots},
               'code_sha256': {p.name: digest(p) for p in Path(__file__).parent.glob('story_*.py')}}
     out.mkdir(parents=True, exist_ok=True)
@@ -419,7 +422,7 @@ def run(bench_root, out, chapters=None, overrides=None):
                 result = saved['payload']
             else:
                 g, v, pins = load_world(roots[0], roots[1], cid); rich = load_optional(*roots, cid, pins)
-                result = chapter(g, v, rich, cfg)
+                result = (chapter_fn or chapter)(g, v, rich, cfg)
                 publish(path, {'config_sha256': stable(config), 'payload': result})
             outputs[str(path.relative_to(out))] = digest(path)
             for item in result['items']:
